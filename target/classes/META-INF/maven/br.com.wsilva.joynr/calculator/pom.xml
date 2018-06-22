@@ -1,0 +1,231 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>br.com.wsilva.joynr</groupId>
+	<artifactId>calculator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>calculator</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<!-- If this pom.xml should be used standalone, the following version of 
+			the joynr framework which is inherited from the parent pom must be replaced 
+			by a fixed one. -->
+		<joynr.version>1.3.0</joynr.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<license.useLicensesConfigFile>true</license.useLicensesConfigFile>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Core joynr framework -->
+		<dependency>
+			<groupId>io.joynr.java.core</groupId>
+			<artifactId>clustercontroller-websocket-runtime</artifactId>
+			<version>${joynr.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.joynr.java.core</groupId>
+			<artifactId>clustercontroller-inprocess-runtime</artifactId>
+			<version>${joynr.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.joynr.java.core</groupId>
+			<artifactId>libjoynr-websocket-runtime</artifactId>
+			<version>${joynr.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.joynr.java.messaging.mqtt</groupId>
+			<artifactId>joynr-mqtt-client</artifactId>
+			<version>${joynr.version}</version>
+		</dependency>
+
+		<!-- Logging used in the demo app -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.6</version>
+		</dependency>
+
+		<!-- Console I/O framework used in the demo app -->
+		<dependency>
+			<groupId>jline</groupId>
+			<artifactId>jline</artifactId>
+			<version>2.12</version>
+		</dependency>
+
+		<!-- Command line parsing used in the demo app -->
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<!-- The following dependencies are only required for convenience and are 
+			not required for the demo app itself. They allow to run a jetty server / 
+			JEE application server (e.g. Payara) that contains the minimum backend -->
+		<dependency>
+			<groupId>io.joynr.java.messaging.bounceproxy</groupId>
+			<artifactId>single-bounceproxy</artifactId>
+			<version>${joynr.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>io.joynr.java.backend-services</groupId>
+			<artifactId>discovery-directory-jee</artifactId>
+			<version>${joynr.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>io.joynr.java.backend-services</groupId>
+			<artifactId>domain-access-controller-jee</artifactId>
+			<version>${joynr.version}</version>
+			<type>war</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<!-- If a local subdirectory is used to store Franca files, it should be 
+			specified here as a resource -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/model</directory>
+			</resource>
+		</resources>
+
+		<finalName>${project.artifactId}</finalName>
+
+		<plugins>
+			<!-- The following section makes sure that Java 7 is used since joynr 
+				framework requires it -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<testSource>1.8</testSource>
+					<testTarget>1.8</testTarget>
+					<debug>true</debug>
+					<debuglevel>lines,vars,source</debuglevel>
+				</configuration>
+				<!-- The following plugin is only needed for Eclipse -->
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-eclipse</artifactId>
+						<version>1.8.6</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<excludes>
+						<exclude>**/package-info*</exclude> <!-- to prevent package-info files from different projects to collide -->
+						<exclude>**/CheckForNull*</exclude> <!-- to prevent check-for-null annotations from package-info to be pulled 
+							into jar-files -->
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- Add the generated Java and Franca files to the processing of sources -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/generated-java</source>
+								<source>src/main/model</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Call the joynr framework code generator to create the required API 
+				files from the Franca input files. The input files can be specified either 
+				by relative path to file, relative path to directory they reside in, or using 
+				a dependency artifact that contains them. For further details please refer 
+				to the external documentation. -->
+			<plugin>
+				<groupId>io.joynr.tools.generator</groupId>
+				<artifactId>joynr-generator-maven-plugin</artifactId>
+				<version>${joynr.version}</version>
+				<executions>
+					<!-- The following part is only required for target language Java -->
+					<execution>
+						<id>generate-java</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<model>${basedir}/src/main/model</model>
+							<generationLanguage>java</generationLanguage>
+							<outputPath>${basedir}/src/main/generated-java</outputPath>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<!-- The following part is only required for target language Java -->
+					<dependency>
+						<groupId>io.joynr.tools.generator</groupId>
+						<artifactId>java-generator</artifactId>
+						<version>${joynr.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- clean up should remove any generated code as well -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<!-- The following part is only required for target language Java -->
+						<fileset>
+							<directory>src/main/generated-java</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+						</fileset>
+						<!-- The following part is only required for target language C++ -->
+						<fileset>
+							<directory>src/main/generated-cpp</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

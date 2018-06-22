@@ -1,0 +1,13 @@
+package io.joynr
+
+interface Calculator {
+	method calcularSoma {
+		in {
+			UInt32 a
+			UInt32 b
+		}
+		out {
+			UInt32 result
+		}
+	}
+}

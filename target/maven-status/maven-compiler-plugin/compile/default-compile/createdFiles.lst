@@ -1,0 +1,11 @@
+joynr/io/joynr/Calculator.class
+joynr/io/joynr/CalculatorProvider.class
+joynr/io/joynr/DefaultCalculatorProvider.class
+joynr/io/joynr/CalculatorAbstractProvider.class
+joynr/io/joynr/CalculatorSync.class
+joynr/io/joynr/CalculatorAsync.class
+joynr/io/joynr/CalculatorSubscriptionPublisher.class
+joynr/io/joynr/CalculatorProxy.class
+joynr/io/joynr/CalculatorFireAndForget.class
+joynr/io/joynr/CalculatorProvider$CalcularSomaDeferred.class
+joynr/io/joynr/CalculatorSubscriptionPublisherImpl.class
